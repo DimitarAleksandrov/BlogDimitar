@@ -1,5 +1,8 @@
 ﻿using Microsoft.Owin;
 using Owin;
+using BlogDimitar.Migrations;
+using BlogDimitar.Models;
+using System.Data.Entity;
 
 [assembly: OwinStartupAttribute(typeof(BlogDimitar.Startup))]
 namespace BlogDimitar
@@ -8,6 +11,7 @@ namespace BlogDimitar
     {
         public void Configuration(IAppBuilder app)
         {
+            Database.SetInitializer(new MigrateDatabaseToLatestVersion<BlogDbContext, Configuration>());
             ConfigureAuth(app);
         }
     }
