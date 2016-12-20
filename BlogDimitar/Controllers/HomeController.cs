@@ -10,7 +10,7 @@ namespace BlogDimitar.Controllers
     {
         public ActionResult Index()
         {
-            return View();
+            return RedirectToAction("List", "Article");
         }
 
         public ActionResult About()

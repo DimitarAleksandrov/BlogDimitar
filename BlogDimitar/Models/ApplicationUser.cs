@@ -14,6 +14,7 @@ namespace BlogDimitar.Models
     public class ApplicationUser : IdentityUser
     {
         [Required]
+        [Display(Name = "Име и Фамилия")]
         public string FullName { get; set; }
 
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
