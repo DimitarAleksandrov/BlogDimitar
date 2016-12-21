@@ -55,6 +55,7 @@ namespace BlogDimitar.Controllers
         }
 
         //GET: Article/Create
+        [Authorize]
         public ActionResult Create()
         {
             return View();
@@ -62,6 +63,7 @@ namespace BlogDimitar.Controllers
 
         //POS: Article/Create
         [HttpPost]
+        [Authorize]
         public ActionResult Create(Article article)
         {
             if (ModelState.IsValid)
@@ -94,19 +96,24 @@ namespace BlogDimitar.Controllers
             using (var database = new BlogDbContext())
             {
                 // Get article from database
-                var artticle = database.Articles
+                var article = database.Articles
                     .Where(a => a.Id == id)
                     .First();
+                // validate request
+                if (!IsUserAuthorizedToEdit(article))
+                {
+                    return new HttpStatusCodeResult(HttpStatusCode.Forbidden);
+                }
                 // Check if article exist
-                if (artticle == null)
+                if (article == null)
                 {
                     return HttpNotFound();
                 }
                 // Create the view model
                 var model = new ArticleViewModel();
-                model.Id = artticle.Id;
-                model.Title = artticle.Title;
-                model.Content = artticle.Content;
+                model.Id = article.Id;
+                model.Title = article.Title;
+                model.Content = article.Content;
                 // Pass the view model to view
                 return View(model);
             }
@@ -148,17 +155,24 @@ namespace BlogDimitar.Controllers
             using (var database = new BlogDbContext())
             {
                 // Get article from database
-                var artticle = database.Articles
+                var article = database.Articles
                     .Where(a => a.Id == id)
                     .Include(a => a.Author)
                     .First();
+
+                // validate request
+                if (!IsUserAuthorizedToEdit(article))
+                {
+                    return new HttpStatusCodeResult(HttpStatusCode.Forbidden);
+                }
+
                 // Check if article exist
-                if (artticle == null)
+                if (article == null)
                 {
                     return HttpNotFound();
                 }
                 // Pass article to view
-                return View(artticle);
+                return View(article);
             }
         }
 
@@ -189,6 +203,13 @@ namespace BlogDimitar.Controllers
                 // Redirect to index page
                 return RedirectToAction("Index");
             }
+        }
+
+        private bool IsUserAuthorizedToEdit(Article article)
+        {
+            bool isAdmin = this.User.IsInRole("Admin");
+            bool isAuthor = article.IsAuthor(this.User.Identity.Name);
+            return isAdmin || isAuthor;
         }
     }
 }

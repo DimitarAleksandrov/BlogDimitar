@@ -24,5 +24,10 @@ namespace BlogDimitar.Models
         public string AutorId { get; set; }
 
         public virtual ApplicationUser Author { get; set; }
+
+        public bool IsAuthor(string name)
+        {
+            return this.Author.UserName.Equals(name);
+        }
     }
 }
